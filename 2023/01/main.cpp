@@ -1,40 +1,51 @@
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <vector>
 
-std::ifstream &getFile();
-void iterateOnFile(std::ifstream &inf);
-void printTotalCalories(std::string &strInput);
-
-int main() { iterateOnFile(getFile()); }
-
-std::ifstream &getFile() {
-  static std::ifstream inf{"input.txt"};
+std::vector<int> &getSortedData() {
+  std::ifstream inf{"input.txt"};
 
   if (!inf) {
-    std::cerr << "Unable to open file.";
+    std::cerr << "unable to open file.";
   }
 
-  return inf;
-}
-
-void iterateOnFile(std::ifstream &inf) {
+  static std::vector<int> stackCalories{};
+  stackCalories.reserve(100);
 
   std::string strInput;
+  int calories{};
 
   while (std::getline(inf, strInput)) {
-    printTotalCalories(strInput);
+
+    if (strInput.empty()) {
+      stackCalories.emplace_back(calories);
+      calories = 0;
+    } else {
+      calories += std::stoi(strInput);
+    }
   }
+
+  int max{};
+
+  for (int i : stackCalories) {
+    max += i;
+  }
+
+  // could have been done better
+  std::sort(stackCalories.begin(), stackCalories.end());
+
+  return stackCalories;
 }
 
-void printTotalCalories(std::string &strInput) {
+int main() {
+  std::vector<int> calories{getSortedData()};
 
-  static int calories{};
+  const unsigned long size{calories.size()};
 
-  if (strInput.empty()) {
-    std::cout << calories << '\n';
-    calories = 0;
-  } else {
-    calories += std::stoi(strInput);
-  }
+  std::cout << "max calories: " << calories[size - 1] << '\n';
+  std::cout << "max calories x3: "
+            << calories[size - 1] + calories[size - 2] + calories[size - 3]
+            << '\n';
 }
