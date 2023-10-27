@@ -10,9 +10,27 @@ enum Direction {
   up,
 };
 
+struct Position {
+  int x{0};
+  int y{0};
+
+  Position &operator+=(const Position &other) {
+    x += other.x;
+    y += other.y;
+    return *this;
+  }
+};
+
 //
-void evalCoord(Direction direction, int greatness);
+void getData();
+Position evalCoord(Direction direction, int greatness);
 //
+
+int main() {
+  getData(); // also call evalCoord, which print result
+
+  return EXIT_SUCCESS;
+}
 
 void getData() {
   std::ifstream inf{"input.txt"};
@@ -26,14 +44,14 @@ void getData() {
   std::string word;
   int number;
 
+  static Position total{};
+
   while (std::getline(inf, strInput)) {
 
     std::istringstream lineStream(strInput);
 
     lineStream >> word;
     lineStream >> number;
-
-    std::cout << word << ' ' << number << '\n';
 
     Direction direction;
     if (word == "forward") {
@@ -44,37 +62,26 @@ void getData() {
       direction = up;
     }
 
-    evalCoord(direction, number);
+    total += evalCoord(direction, number);
   }
+
+  std::cout << total.x * total.y;
 }
 
-int main() {
-  getData();
-  return EXIT_SUCCESS;
-}
-
-void evalCoord(Direction direction, int greatness) {
-  struct Position {
-    int x{0};
-    int y{0};
-  };
-
+Position evalCoord(Direction direction, int greatness) {
   Position actual{};
-
-  // static Position total{};
 
   switch (direction) {
   case forward:
     actual.x += greatness;
     break;
   case up:
-    actual.y += greatness;
+    actual.y -= greatness;
     break;
   case down:
-    actual.y -= greatness;
+    actual.y += greatness;
     break;
   }
 
-  std::cout << '\n'
-            << "actual position: " << actual.x << ' ' << actual.y << '\n';
+  return actual;
 }
