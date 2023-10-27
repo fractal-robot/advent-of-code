@@ -13,21 +13,24 @@ enum Direction {
 struct Position {
   int x{0};
   int y{0};
+  int aim{0};
 
+  // operator overloading is not needed anymore
   Position &operator+=(const Position &other) {
     x += other.x;
     y += other.y;
+    aim += other.aim;
     return *this;
   }
 };
 
 //
 void getData();
-Position evalCoord(Direction direction, int greatness);
+void evalCoord(Direction direction, int greatness);
 //
 
 int main() {
-  getData(); // also call evalCoord, and print result
+  getData(); // also call evalCoord, which print result
 
   return EXIT_SUCCESS;
 }
@@ -43,8 +46,6 @@ void getData() {
 
   std::string word;
   int number;
-
-  static Position total{};
 
   while (std::getline(inf, strInput)) {
 
@@ -62,26 +63,27 @@ void getData() {
       direction = up;
     }
 
-    total += evalCoord(direction, number);
+    evalCoord(direction, number);
   }
-
-  std::cout << total.x * total.y;
 }
 
-Position evalCoord(Direction direction, int greatness) {
-  Position actual{};
+void evalCoord(Direction direction, int greatness) {
+  static Position total{};
 
   switch (direction) {
   case forward:
-    actual.x += greatness;
+    total.x += greatness;
+    total.y += (greatness * total.aim);
     break;
   case up:
-    actual.y -= greatness;
+    total.aim -= greatness;
     break;
   case down:
-    actual.y += greatness;
+    total.aim += greatness;
     break;
   }
 
-  return actual;
+  std::cout << total.x << '\t' << total.y << '\t' << total.aim << '\n';
+
+  std::cout << '\n' << total.y * total.x;
 }
