@@ -27,7 +27,7 @@ Position evalCoord(Direction direction, int greatness);
 //
 
 int main() {
-  getData(); // also call evalCoord, which print result
+  getData(); // also call evalCoord, and print result
 
   return EXIT_SUCCESS;
 }
