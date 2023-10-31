@@ -2,8 +2,10 @@
 
 #include <array>
 #include <cstddef>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -13,6 +15,8 @@ constexpr std::size_t boardSize{5};
 
 using Board = std::array<std::array<int, boardSize>, boardSize>;
 using BoardsVector = std::vector<Board>;
+
+static Board emptyBoard{};
 
 // can't use std::string_view with constructor of std::istringstream
 std::vector<int> &getValuesArray(const std::string &strInput) {
@@ -29,7 +33,6 @@ std::vector<int> &getValuesArray(const std::string &strInput) {
   return values;
 }
 
-// can't use std::string_view with constructor of std::istringstream
 std::array<int, boardSize> stringToArray(const std::string &strInput) {
 
   std::array<int, boardSize> array{};
@@ -38,14 +41,25 @@ std::array<int, boardSize> stringToArray(const std::string &strInput) {
   for (std::size_t i = 0; i < boardSize; i++) {
     iss >> array[i];
   }
-
-  for (int i : array) {
-    std::cout << i << ' ';
-  }
-
-  std::cout << '\n';
-
   return array;
+}
+
+void getBingoBoards(const std::string &strInput, Board &board,
+                    BoardsVector &boards) {
+  static std::size_t counter;
+
+  if (strInput.empty()) {
+    if (board != emptyBoard) {
+      counter = 0;
+      // so a new line is necessary at the end of the input file
+      boards.push_back(board);
+      board = emptyBoard;
+    }
+  } else {
+    board[counter] = stringToArray(strInput);
+
+    ++counter;
+  }
 }
 
 void printBoards(const BoardsVector &boards) {
@@ -61,23 +75,88 @@ void printBoards(const BoardsVector &boards) {
   }
 }
 
-void getBingoBoards(const std::string &strInput, Board &board,
-                    BoardsVector &boards) {
-  static std::size_t counter;
-  static Board voidBoard{};
+//
 
-  if (strInput.empty()) {
-    if (board != voidBoard) {
-      counter = 0;
-      // so a new line is necessary at the end of the input file
-      boards.push_back(board);
-      board = voidBoard;
+int markNumbers(std::vector<int> *values, BoardsVector &boards) {
+  int value = (*values)[0];
+
+  for (std::size_t board{0}; board < std::size(boards); ++board) {
+    for (std::size_t arow{0}; arow < std::size(boards[0]); ++arow) {
+      for (std::size_t e{0}; e < std::size(boards[0][0]); ++e) {
+        if (boards[board][arow][e] == value) {
+          boards[board][arow][e] = -(boards[board][arow][e]);
+        }
+      }
     }
-  } else {
-    board[counter] = stringToArray(strInput);
-
-    ++counter;
   }
+
+  values->erase(values->begin());
+  return value;
+}
+
+bool checkRows(Board &board) {
+  for (std::size_t row = 0; row < boardSize; row++) {
+    bool allNegative = true;
+    for (std::size_t col = 0; col < boardSize; col++) {
+      if (board[row][col] >= 0) {
+        allNegative = false;
+        break;
+      }
+    }
+    if (allNegative) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool checkColumns(Board &board) {
+  for (std::size_t col = 0; col < boardSize; col++) {
+    bool allNegative = true;
+    for (std::size_t row = 0; row < boardSize; row++) {
+      if (board[row][col] >= 0) {
+        allNegative = false;
+        break;
+      }
+    }
+    if (allNegative) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+Board &checkForWinner(BoardsVector &boards) {
+
+  static Board winningBoard;
+
+  for (std::size_t board{0}; board < std::size(boards); ++board) {
+    if (checkRows(boards[board]) || checkColumns(boards[board])) {
+      std::cout << "there is a winner: ";
+
+      winningBoard = boards[board];
+      return winningBoard;
+    }
+  }
+
+  return emptyBoard;
+}
+
+int calculateWinningBoardScore(Board board, int calledNumber) {
+
+  int sum{0};
+  for (std::size_t row{0}; row < boardSize; ++row) {
+    for (std::size_t col{0}; col < boardSize; ++col) {
+      if (board[row][col] > 0) {
+        sum += board[row][col];
+      }
+    }
+  }
+  std::cout << sum << " * " << calledNumber << " = " << sum * calledNumber;
+  std::exit(1);
+  return sum;
 }
 
 int main() {
@@ -107,14 +186,19 @@ int main() {
     }
   }
 
-  std::cout << "\n\n\n";
-  printBoards(boards);
+  Board winnerBoard;
+  int calledNumber;
 
-  for (int i : *values) {
-    std::cout << i << ' ';
+  while (!values->empty()) {
+    // also change values and boards
+    calledNumber = markNumbers(values, boards);
+
+    winnerBoard = checkForWinner(boards);
+
+    if (winnerBoard[0][0] != 0) {
+      calculateWinningBoardScore(winnerBoard, calledNumber);
+    }
   }
 
   return EXIT_SUCCESS;
 }
-
-// return by CONST reference
