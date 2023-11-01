@@ -84,7 +84,7 @@ int markNumbers(std::vector<int> *values, BoardsVector &boards) {
     for (std::size_t arow{0}; arow < std::size(boards[0]); ++arow) {
       for (std::size_t e{0}; e < std::size(boards[0][0]); ++e) {
         if (boards[board][arow][e] == value) {
-          boards[board][arow][e] = -(boards[board][arow][e]);
+          boards[board][arow][e] = -1;
           std::cout << "value " << value << " has been removed" << '\n';
         }
       }
@@ -129,13 +129,18 @@ bool checkColumns(Board &board) {
   return false;
 }
 
-void checkForWinner(BoardsVector &boards) {
+bool checkForWinner(BoardsVector &boards) {
   for (std::size_t board{0}; board < std::size(boards); ++board) {
     if (checkRows(boards[board]) || checkColumns(boards[board])) {
-      boards.erase(boards.begin() + static_cast<int>(board));
-      std::cout << "a board have been removed" << '\n';
+      if (std::size(boards) == 1) {
+        std::cout << "the last board won" << '\n';
+        return true;
+      } else {
+        boards.erase(boards.begin() + static_cast<int>(board));
+      }
     }
   }
+  return false;
 }
 
 int calculateWinningBoardScore(Board board, int calledNumber) {
@@ -180,29 +185,20 @@ int main() {
   }
 
   int calledNumber;
+  bool isWinning;
 
   while (!values->empty()) {
 
-    checkForWinner(boards);
+    isWinning = checkForWinner(boards);
 
-    if (std::size(boards) == 1) {
-      std::cout << "breaking loop" << '\n';
-      calledNumber = markNumbers(values, boards);
-
+    if (isWinning) {
       break;
     }
 
     // also change values and boards
     calledNumber = markNumbers(values, boards);
-
-    std::cout << "there is " << std::size(boards) << " before " << calledNumber
-              << '\n';
-
-    std::cout << "there is " << std::size(boards) << " after " << calledNumber
-              << '\n';
   }
 
-  std::cout << std::size(boards) << '\n';
   printBoards(boards);
   calculateWinningBoardScore(boards[0], calledNumber);
 
