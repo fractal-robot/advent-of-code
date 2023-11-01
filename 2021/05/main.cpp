@@ -52,14 +52,28 @@ public:
     std::cout << "Max coordinates: " << xMax << ", " << yMax << '\n';
   }
 
+  void printCoordinates() {
+    for (Coordinates coor : coordinatesList) {
+      for (int i : coor) {
+        std::cout << i << ' ';
+      }
+      std::cout << '\n';
+    }
+
+    std::cout << '\n';
+  }
+
   void drawMap() {
 
     for (Coordinates coor : coordinatesList) {
-      if (coor[0] == coor[2]) {
-        drawVerticalLine(coor);
-      } else if (coor[1] == coor[3]) {
-        drawHorizontalLine(coor);
+      coordinatesSet.erase(coordinatesSet.begin(), coordinatesSet.end());
+      generateCoordinatesSet(coor);
+
+      for (int i : coordinatesSet) {
+        std::cout << i << ' ';
       }
+
+      std::cout << '\n';
     }
   }
 
@@ -73,9 +87,47 @@ private:
     return false;
   }
 
-  void drawVerticalLine(Coordinates &coor) { ; }
+  void generateCoordinatesSet(Coordinates &coor) {
+    if (coor[0] == coor[2]) {
+      generateXLine(coor);
+    } else if (coor[1] == coor[3]) {
+      generateYLine(coor);
+    } else {
+      std::cerr << "invalid coordinates" << '\n';
+    }
+  }
 
-  void drawHorizontalLine(Coordinates &coor) { ; }
+  void generateXLine(Coordinates &coor) {
+    coordinatesSet.emplace_back(coor[0]);
+
+    if (coor[1] <= coor[3]) {
+      for (int i{coor[1]}; i <= coor[3]; ++i) {
+        coordinatesSet.emplace_back(i);
+      }
+    }
+    if (coor[1] >= coor[3]) {
+      for (int i{coor[3]}; i <= coor[1]; ++i) {
+        coordinatesSet.emplace_back(i);
+      }
+    }
+  }
+
+  void generateYLine(Coordinates &coor) {
+
+    coordinatesSet.emplace_back(coor[1]);
+
+    if (coor[0] <= coor[2]) {
+      for (int i{coor[0]}; i <= coor[2]; ++i) {
+        coordinatesSet.emplace_back(i);
+      }
+    }
+
+    if (coor[0] >= coor[2]) {
+      for (int i{coor[2]}; i <= coor[0]; ++i) {
+        coordinatesSet.emplace_back(i);
+      }
+    }
+  }
 
 private:
   Coordinates coordinates;
@@ -85,6 +137,8 @@ private:
 
   int xMax{};
   int yMax{};
+
+  std::vector<int> coordinatesSet{};
 
   Map map{};
 };
@@ -103,4 +157,6 @@ int main() {
   }
 
   data.setMaxCoordinates();
+  data.printCoordinates();
+  data.drawMap();
 }
