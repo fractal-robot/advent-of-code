@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <fstream>
@@ -60,12 +61,12 @@ public:
   void printCoordinates() {
     for (Coordinates coor : coordinatesList) {
       for (int i : coor) {
-        std::cout << i << ' ';
+        // std::cout << i << ' ';
       }
-      std::cout << '\n';
+      // std::cout << '\n';
     }
 
-    std::cout << '\n';
+    // std::cout << '\n';
   }
 
   std::vector<std::vector<int>> &getCoordinatesSets() {
@@ -85,10 +86,10 @@ public:
       }
 
       for (int i : coordinatesSet) {
-        std::cout << i << ' ';
+        // std::cout << i << ' ';
       }
 
-      std::cout << '\n';
+      // std::cout << '\n';
       coorList.emplace_back(coordinatesSet);
     }
 
@@ -159,7 +160,9 @@ private:
 class Map {
 public:
   Map(std::pair<int, int> max)
-      : xMax(max.first), yMax(max.second), map(xMax, std::vector<int>(yMax)) {
+      : xMax(max.first), yMax(max.second),
+        map(static_cast<std::size_t>(xMax + 1),
+            std::vector<int>(static_cast<std::size_t>(yMax + 1))) {
     std::cout << "Class map initialized." << '\n';
   }
 
@@ -167,10 +170,10 @@ public:
     std::cout << '\n' << "in map" << '\n';
     for (std::vector<int> values : coordsList) {
       if (values[0] == 0) {
-        drawXLine(values);
+        drawYLine(values);
 
       } else if (values[0] == 1) {
-        drawYLine(values);
+        drawXLine(values);
       } else {
         std::cerr << "Unable to find value direction.";
       }
@@ -216,16 +219,38 @@ public:
 
 private:
   void drawXLine(const std::vector<int> &values) {
-    for (std::size_t i{static_cast<std::size_t>(values[2])};
-         i <= static_cast<int>(values.back()); ++i) {
-      map[values[1]][i] += 1;
+    if (values.size() < 4) {
+      std::cerr << "Invalid input data for drawing X-line." << std::endl;
+      return; // Exit early to avoid invalid access.
+    }
+
+    const std::size_t row = static_cast<std::size_t>(values[1]);
+    const std::size_t minCol = static_cast<std::size_t>(values[2]);
+    const std::size_t maxCol = static_cast<std::size_t>(values.back());
+
+    if (row < map.size()) {
+      for (std::size_t col = std::max<std::size_t>(minCol, 0U);
+           col <= std::min<std::size_t>(maxCol, map[row].size() - 1); ++col) {
+        map[row][col] += 1;
+      }
     }
   }
 
   void drawYLine(const std::vector<int> &values) {
-    for (std::size_t i{static_cast<std::size_t>(values[2])};
-         i <= static_cast<int>(values.back()); ++i) {
-      map[i][values[1]] += 1;
+    if (values.size() < 4) {
+      std::cerr << "Invalid input data for drawing Y-line." << std::endl;
+      return; // Exit early to avoid invalid access.
+    }
+
+    const std::size_t col = static_cast<std::size_t>(values[1]);
+    const std::size_t minRow = static_cast<std::size_t>(values[2]);
+    const std::size_t maxRow = static_cast<std::size_t>(values.back());
+
+    if (col < map[0].size()) {
+      for (std::size_t row = std::max<std::size_t>(minRow, 0U);
+           row <= std::min<std::size_t>(maxRow, map.size() - 1); ++row) {
+        map[row][col] += 1;
+      }
     }
   }
 
@@ -252,13 +277,16 @@ int main() {
   }
 
   coord.setMaxCoordinates();
-  coord.printCoordinates();
 
   std::vector<std::vector<int>> coordsList{coord.getCoordinatesSets()};
   std::pair maxCoord{coord.getMaxCoordinates()};
 
+  if (maxCoord.first < 1 || maxCoord.second < 1) {
+    std::cerr << "Invalid max coordinates";
+  }
+
   Map map{maxCoord};
   map.createMap(coordsList);
-  map.printMap();
   map.test_calculateSums(coordsList);
+  map.printMap();
 }
