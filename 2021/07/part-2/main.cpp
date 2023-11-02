@@ -18,17 +18,24 @@ public:
 
     int minFuel{0};
     int pos{};
+    int fuel{};
 
     for (std::size_t i = minMax.first; i <= minMax.second; ++i) {
-      int fuel = calculateDistance(i);
+      for (int coordinate : m_coordinates) {
+        int submarineFuel = calculateFuel(calculateDistance(i, coordinate));
+        fuel += submarineFuel;
+      }
 
       if (fuel < minFuel || minFuel == 0) {
         minFuel = fuel;
         pos = i;
       }
+
+      fuel = 0;
     }
 
-    std::cout << minFuel << " -> " << pos;
+    // generate some weird output if the buffur isn't flush with g++
+    std::cout << std::endl << minFuel << " -> " << pos;
   }
 
 private:
@@ -42,15 +49,27 @@ private:
     }
   }
 
-  int calculateDistance(int pos) {
-    int distance{};
+  int calculateFuel(int distance) {
+    int fuel{0};
+    int fuelMultiplicator{1};
 
-    for (int coordinate : m_coordinates) {
-      if (coordinate < pos) {
-        distance += (pos - coordinate);
-      } else if (coordinate > pos) {
-        distance += (coordinate - pos);
-      }
+    for (std::size_t i{1}; i <= static_cast<std::size_t>(distance); ++i) {
+      fuel += fuelMultiplicator;
+      ++fuelMultiplicator;
+    }
+
+    return fuel;
+  }
+
+  int calculateDistance(int pos, int coordinate) {
+    int distance;
+
+    if (coordinate < pos) {
+      distance = (pos - coordinate);
+    } else if (coordinate > pos) {
+      distance = (coordinate - pos);
+    } else {
+      return 0;
     }
 
     return distance;
