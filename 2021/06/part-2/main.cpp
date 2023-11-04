@@ -22,7 +22,7 @@ public:
     setNewState();
   }
 
-  void printTotal() {
+  void printTotal() const {
     long int total{0};
 
     for (long int i : m_internalStates) {

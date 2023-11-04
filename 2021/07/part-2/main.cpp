@@ -34,7 +34,7 @@ public:
       fuel = 0;
     }
 
-    // generate some weird output if the buffur isn't flush with g++
+    // generate some weird output with g++ if the buffer isn't flush
     std::cout << std::endl << minFuel << " -> " << pos;
   }
 
