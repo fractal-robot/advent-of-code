@@ -20,8 +20,8 @@ public:
       scoreMe += 6;
     }
 
-    scoreMe += shape.first;
-    scoreOpponent += shape.second;
+    scoreMe += shape.second;
+    scoreOpponent += shape.first;
   }
 
   inline static int scoreMe{};
