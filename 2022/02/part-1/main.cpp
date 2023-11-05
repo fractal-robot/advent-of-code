@@ -8,7 +8,6 @@ using Shapes = std::pair<int, int>;
 class HandShapes {
 public:
   static void addToScoreboard(Shapes shape) {
-
     if (shape.first == shape.second) {
       scoreMe += 3;
       scoreOpponent += 3;
