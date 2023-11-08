@@ -17,46 +17,32 @@ int main() {
 
   std::string strInput;
 
+  std::vector<std::string> valuesArray{};
+  valuesArray.reserve(100);
+
   std::vector<char> commonCharacters{};
   commonCharacters.reserve(100);
 
-  int lineCounter{};
-
   while (std::getline(input, strInput, '\n')) {
-    assert(std::size(strInput) % 2 == 0);
-    std::size_t divisor{std::size(strInput) / 2};
+    valuesArray.emplace_back(strInput);
+  }
 
-    std::string firstCompartment{strInput.substr(0, divisor)};
-    std::string secondCompartment{strInput.substr(divisor)};
-
-    std::cout << strInput << '\n';
-    std::cout << firstCompartment << ' ' << secondCompartment << '\n' << '\n';
-
+  for (std::size_t i{0}; i < std::size(valuesArray); i += 3) {
     char commonCharacter;
-    for (char c : firstCompartment) {
-      for (char d : secondCompartment) {
-        if (c == d) {
-          commonCharacter = d;
+
+    for (char c : valuesArray[i]) {
+      for (char d : valuesArray[i + 1]) {
+        for (char e : valuesArray[i + 2]) {
+          if ((c == d) && (d == e)) {
+            commonCharacter = e;
+          }
         }
       }
     }
-
     commonCharacters.emplace_back(commonCharacter);
-
-    ++lineCounter;
-
-    if (static_cast<std::size_t>(lineCounter) != std::size(commonCharacters)) {
-      std::cout << '\n'
-                << "for: " << firstCompartment << ' ' << secondCompartment
-                << " no common character have been found";
-
-      std::cout << '\n'
-                << '\n'
-                << lineCounter << ' ' << std::size(commonCharacters);
-    }
   }
 
-  long sum{};
+  int sum{};
   for (char c : commonCharacters) {
     std::cout << c << ' ';
 
@@ -72,8 +58,6 @@ int main() {
       exit(1);
     }
   }
-
-  std::cout << lineCounter << ' ' << std::size(commonCharacters) << '\n';
 
   std::cout << '\n' << sum;
 }
