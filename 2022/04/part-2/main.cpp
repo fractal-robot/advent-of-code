@@ -34,38 +34,20 @@ std::vector<int> getInterval(std::string strInput) {
 
 void countFullyContained(std::vector<Pair> &pairs) {
   std::size_t counter{};
-  int globalCounter{};
+  bool isTreated{false};
 
   for (Pair pair : pairs) {
-    if (pair.v1 == pair.v2) {
-      ++globalCounter;
-
-    } else {
-
-      for (int value1 : pair.v1) {
-        if (value1 >= pair.v2[0] && value1 <= pair.v2.back()) {
-          ++counter;
+    for (int pair1 : pair.v1) {
+      for (int pair2 : pair.v2) {
+        if (pair1 == pair2 && isTreated == false) {
+          counter++;
+          isTreated = true;
         }
       }
-
-      if (counter >= std::size(pair.v1)) {
-        ++globalCounter;
-      }
-      counter = 0;
-
-      for (int value2 : pair.v2) {
-        if (value2 >= pair.v1[0] && value2 <= pair.v1.back()) {
-          ++counter;
-        }
-      }
-
-      if (counter >= std::size(pair.v2)) {
-        ++globalCounter;
-      }
-      counter = 0;
     }
+    isTreated = false;
   }
-  std::cout << '\n' << globalCounter;
+  std::cout << counter;
 }
 
 int main() {
