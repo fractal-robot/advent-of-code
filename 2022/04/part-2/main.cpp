@@ -86,6 +86,18 @@ int main() {
     pair.v1 = getInterval(strInput.substr(0, strInput.find(',')));
     pair.v2 = getInterval(strInput.substr(strInput.find(',') + 1));
 
+    for (int c : pair.v1) {
+      std::cout << c << ' ';
+    }
+
+    std::cout << '\n';
+
+    for (int c : pair.v2) {
+      std::cout << c << ' ';
+    }
+
+    std::cout << '\n';
+
     pairs.emplace_back(pair);
   }
 
